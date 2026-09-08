@@ -1,0 +1,25 @@
+{
+  "title": "SIR Toscana",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a SIR Toscana station",
+        "description": "Enter the station name as published in the SIR Toscana monitoring tables, for example “La Ferruccia”.",
+        "data": {
+          "station_name": "Station name"
+        },
+        "data_description": {
+          "station_name": "You can enter the complete name or a unique part of the name published by SIR."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to communicate with the SIR Toscana website.",
+      "station_not_found": "Station not found. Check the name published by SIR Toscana.",
+      "ambiguous_station": "The name matches more than one station. Enter a more specific name."
+    },
+    "abort": {
+      "already_configured": "This SIR station is already configured."
+    }
+  }
+}
