@@ -4,19 +4,18 @@
     "step": {
       "user": {
         "title": "Aggiungi una stazione SIR Toscana",
-        "description": "Inserisci il nome della stazione come pubblicato nelle tabelle di monitoraggio del SIR Toscana, ad esempio “La Ferruccia”.",
+        "description": "Seleziona una stazione tra quelle disponibili nelle tabelle di monitoraggio del SIR Toscana.",
         "data": {
-          "station_name": "Nome stazione"
+          "station_id": "Stazione"
         },
         "data_description": {
-          "station_name": "Il nome può essere completo oppure una parte univoca del nome pubblicato dal SIR."
+          "station_id": "L'elenco viene acquisito automaticamente dal portale SIR Toscana."
         }
       }
     },
     "error": {
-      "cannot_connect": "Impossibile comunicare con il portale SIR Toscana.",
-      "station_not_found": "Stazione non trovata. Verifica il nome pubblicato dal SIR Toscana.",
-      "ambiguous_station": "Il nome corrisponde a più stazioni. Inserisci un nome più specifico."
+      "cannot_connect": "Impossibile comunicare con il portale SIR Toscana. Riprova.",
+      "station_not_found": "La stazione selezionata non è più disponibile nell'elenco SIR."
     },
     "abort": {
       "already_configured": "Questa stazione SIR è già configurata."

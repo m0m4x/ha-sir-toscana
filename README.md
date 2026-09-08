@@ -6,7 +6,7 @@
 
 Custom integration per Home Assistant per acquisire i **dati in tempo reale della rete meteo-idrologica regionale** pubblicati dal **Servizio Idrologico Regionale (SIR) della Regione Toscana**.
 
-L'integrazione permette di aggiungere una stazione inserendo semplicemente il **nome della stazione**. Il codice `TOS...` viene individuato automaticamente e i valori restituiti dal servizio pubblico SIR vengono esposti come sensori Home Assistant.
+L'integrazione acquisisce automaticamente l'elenco delle stazioni disponibili dal portale SIR della Regione Toscana. L'utente seleziona la stazione dal Config Flow e il relativo codice `TOS...` viene memorizzato come identificativo stabile. I valori restituiti dal servizio pubblico SIR vengono quindi esposti come sensori Home Assistant.
 
 > **Progetto indipendente e non ufficiale.** Non è sviluppato, approvato o supportato dalla Regione Toscana o dal SIR.
 
@@ -25,66 +25,81 @@ Il primo pulsante aggiunge/apre il repository in HACS. Il secondo avvia il Confi
 ## Funzionalità
 
 - configurazione da interfaccia Home Assistant tramite Config Flow;
-- inserimento del nome della stazione, senza necessità di conoscere il codice `TOS...`;
-- ricerca case-insensitive e supporto a corrispondenze parziali univoche;
-- polling del servizio pubblico SIR ogni 15 minuti, coerente con la cadenza osservata dei dati in tempo reale;
+- elenco delle stazioni acquisito automaticamente dal portale SIR;
+- selezione della stazione tramite menu Home Assistant;
+- nessuna necessità di conoscere o digitare il codice `TOS...`;
+- polling del servizio pubblico SIR ogni 15 minuti;
 - una sola richiesta HTTP per stazione a ogni ciclo di aggiornamento;
 - creazione automatica dei sensori presenti nel JSON della stazione;
 - aggiunta dinamica di nuovi sensori se il SIR introduce nuovi campi nel payload;
 - un dispositivo Home Assistant distinto per ogni stazione;
 - supporto a più stazioni;
-- unità e device class Home Assistant per le principali grandezze note;
-- mantenimento dei campi sconosciuti con il nome sorgente, evitando interpretazioni arbitrarie;
+- nomi, unità e device class Home Assistant per le principali grandezze note;
 - nessuna API key richiesta.
 
-## Esempio: La Ferruccia
+## Esempio: Prato Università
 
-Configurando:
-
-```text
-La Ferruccia
-```
-
-l'integrazione individua automaticamente:
+Nel Config Flow è possibile selezionare:
 
 ```text
-TOS01001269
+Prato Università — TOS01001205
 ```
 
-e acquisisce i dati da:
+L'integrazione acquisisce i dati da:
 
 ```text
-https://www.sir.toscana.it/monitoraggio/actions.php?action=station&id=TOS01001269
+https://www.sir.toscana.it/monitoraggio/actions.php?action=station&id=TOS01001205
 ```
 
-Il payload può contenere sezioni come `anemo`, `pluvio`, `termo`, `igro`, `radio` e altre sezioni dipendenti dalla sensoristica installata nella singola stazione.
+La stazione Prato Università è presente nelle tabelle di monitoraggio SIR per più grandezze meteorologiche.
 
-Per La Ferruccia vengono quindi creati, tra gli altri:
+## Nomi dei sensori
 
-- velocità del vento in `m/s`;
-- direzione del vento in gradi;
-- temperatura in `°C`;
-- umidità relativa in `%`;
-- cumulati pluviometrici in `mm`;
-- date di rilevazione;
-- ulteriori valori scalari presenti nel payload SIR.
+I nomi delle entità seguono il più possibile la terminologia utilizzata nelle visualizzazioni del portale SIR.
+
+Esempi:
+
+```text
+Velocità vento
+Direzione vento
+Temperatura
+Umidità aria
+Radiazione diretta
+Precipitazioni cumulate 15 minuti
+Precipitazioni cumulate 1 ora
+Precipitazioni cumulate 3 ore
+Precipitazioni cumulate 6 ore
+Precipitazioni cumulate 12 ore
+Precipitazioni cumulate 24 ore
+Precipitazioni cumulate 36 ore
+Tempo di ritorno precipitazione 1 ora
+Precipitazioni step 00–03 (24 h)
+```
+
+I timestamp vengono esposti come entità diagnostiche, ad esempio:
+
+```text
+Data rilevazione vento
+Data rilevazione temperatura
+Data rilevazione umidità aria
+Data rilevazione precipitazioni
+```
 
 I campi tecnici `id` e `speed_label` non vengono creati come entità.
 
 ## Configurazione
 
-L'unico parametro richiesto è il **nome della stazione** come pubblicato nelle tabelle di monitoraggio SIR.
+1. Aprire **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
+2. Cercare **SIR Toscana**.
+3. Selezionare la stazione desiderata dall'elenco.
 
-Esempi:
+Ogni voce mostra il nome pubblicato dal SIR e il relativo codice identificativo:
 
 ```text
-La Ferruccia
-Prato Università
-Case Passerini
-Firenze Università
+Prato Università — TOS01001205
 ```
 
-Il confronto non distingue maiuscole e minuscole. Se il testo inserito identifica una sola stazione anche come corrispondenza parziale, la stazione viene accettata. Se il nome è ambiguo, Home Assistant chiede di specificarlo meglio.
+Il codice viene salvato internamente come identificativo stabile della stazione, mentre il nome pubblicato dal SIR viene utilizzato come nome del dispositivo Home Assistant.
 
 ## Aggiornamento dei dati
 
@@ -112,7 +127,7 @@ Endpoint della singola stazione:
 https://www.sir.toscana.it/monitoraggio/actions.php?action=station&id=CODICE_STAZIONE
 ```
 
-La ricerca delle stazioni utilizza le tabelle pubbliche verificate per anemometria, pluviometria, termometria, igrometria, idrometria e nivometria. Le stazioni mareografiche presenti nella tabella idrometrica sono quindi individuabili attraverso la stessa ricerca.
+La ricerca delle stazioni utilizza le tabelle pubbliche verificate per anemometria, pluviometria, termometria, igrometria, idrometria e nivometria.
 
 ## Dati in tempo reale e validazione
 
@@ -128,9 +143,9 @@ Il payload JSON viene analizzato senza presupporre che tutte le stazioni dispong
 
 Per ogni sezione del JSON della stazione vengono create entità per tutti i valori scalari, ad eccezione dei campi tecnici esclusi esplicitamente (`id` e `speed_label`).
 
-I campi noti ricevono unità, device class e icone Home Assistant appropriate. I campi non ancora documentati dall'integrazione vengono comunque acquisiti con il nome originale restituito dalla fonte, senza inventarne il significato.
+I campi noti ricevono nomi leggibili, unità, device class e icone Home Assistant appropriate. I campi non ancora documentati vengono comunque acquisiti con un nome derivato dalla sezione e dal campo sorgente.
 
-> La versione 0.1.1 considera come dati della stazione il payload JSON restituito da `actions.php?action=station`. Le tabelle riepilogative del portale possono mostrare elaborazioni aggiuntive (ad esempio massimi giornalieri o raffiche) che non fanno parte di quel payload e non vengono ancora importate come sensori.
+> La versione 0.1.1 considera come dati della stazione il payload JSON restituito da `actions.php?action=station`. Le tabelle riepilogative del portale possono mostrare elaborazioni aggiuntive, come massimi giornalieri o raffiche, che non fanno parte di quel payload e non vengono ancora importate come sensori.
 
 ## Installazione manuale
 
@@ -150,7 +165,7 @@ I campi noti ricevono unità, device class e icone Home Assistant appropriate. I
 3. Riavviare Home Assistant.
 4. Aprire **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
 5. Cercare **SIR Toscana**.
-6. Inserire il nome della stazione.
+6. Selezionare la stazione desiderata.
 
 ## Limitazioni
 
@@ -159,16 +174,6 @@ I campi noti ricevono unità, device class e icone Home Assistant appropriate. I
 - Una modifica del portale SIR potrebbe richiedere un aggiornamento dell'integrazione.
 - Per i campi non documentati viene volutamente evitata qualsiasi reinterpretazione del significato o dell'unità di misura.
 - La consultazione nivometrica può essere stagionale secondo le indicazioni pubblicate dal SIR.
-
-## Condivisione
-
-Una volta pubblicato il repository, per condividere il progetto su WhatsApp è sufficiente inviare:
-
-```text
-https://github.com/m0m4x/ha-sir-toscana
-```
-
-Il destinatario troverà nel README il pulsante HACS per aggiungere il repository alla propria Home Assistant e il pulsante per avviare la configurazione dell'integrazione.
 
 ## Licenza
 

@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
     EntityCategory,
     UnitOfPrecipitationDepth,
+    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
 )
@@ -24,6 +30,40 @@ from .const import DOMAIN
 from .coordinator import SirToscanaCoordinator
 
 SKIPPED_FIELDS = {"id", "speed_label"}
+
+_PLUVIO_STEP_RE = re.compile(
+    r"^CUM(?P<period>24|48)_(?P<start>\d{2})_(?P<end>\d{2})$"
+)
+
+_SECTION_LABELS = {
+    "anemo": "Anemometro",
+    "baro": "Barometro",
+    "idro": "Idrometro",
+    "igro": "Igrometro",
+    "nivo": "Nivometro",
+    "pluvio": "Pluviometro",
+    "radio": "Radiometro",
+    "termo": "Termometro",
+}
+
+_CUMULATED_PRECIPITATION_LABELS = {
+    "CUM00": "Precipitazioni cumulate 15 minuti",
+    "CUM01": "Precipitazioni cumulate 1 ora",
+    "CUM03": "Precipitazioni cumulate 3 ore",
+    "CUM06": "Precipitazioni cumulate 6 ore",
+    "CUM12": "Precipitazioni cumulate 12 ore",
+    "CUM24": "Precipitazioni cumulate 24 ore",
+    "CUM36": "Precipitazioni cumulate 36 ore",
+}
+
+_RETURN_PERIOD_LABELS = {
+    "TR01": "Tempo di ritorno precipitazione 1 ora",
+    "TR03": "Tempo di ritorno precipitazione 3 ore",
+    "TR06": "Tempo di ritorno precipitazione 6 ore",
+    "TR12": "Tempo di ritorno precipitazione 12 ore",
+    "TR24": "Tempo di ritorno precipitazione 24 ore",
+    "TR36": "Tempo di ritorno precipitazione 36 ore",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,7 +79,7 @@ class FieldMetadata:
 
 
 def _metadata(section: str, key: str) -> FieldMetadata:
-    """Return metadata for known SIR fields, with a conservative fallback."""
+    """Return readable metadata for SIR fields."""
     known: dict[tuple[str, str], FieldMetadata] = {
         ("anemo", "date"): FieldMetadata(
             "Data rilevazione vento",
@@ -60,6 +100,18 @@ def _metadata(section: str, key: str) -> FieldMetadata:
             SensorStateClass.MEASUREMENT_ANGLE,
             "mdi:compass",
         ),
+        ("baro", "date"): FieldMetadata(
+            "Data rilevazione pressione",
+            icon="mdi:clock-outline",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ("baro", "value"): FieldMetadata(
+            "Pressione atmosferica",
+            UnitOfPressure.HPA,
+            SensorDeviceClass.ATMOSPHERIC_PRESSURE,
+            SensorStateClass.MEASUREMENT,
+            "mdi:gauge",
+        ),
         ("termo", "date"): FieldMetadata(
             "Data rilevazione temperatura",
             icon="mdi:clock-outline",
@@ -73,29 +125,28 @@ def _metadata(section: str, key: str) -> FieldMetadata:
             "mdi:thermometer",
         ),
         ("igro", "date"): FieldMetadata(
-            "Data rilevazione umidità",
+            "Data rilevazione umidità aria",
             icon="mdi:clock-outline",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         ("igro", "value"): FieldMetadata(
-            "Umidità relativa",
+            "Umidità aria",
             PERCENTAGE,
             SensorDeviceClass.HUMIDITY,
             SensorStateClass.MEASUREMENT,
             "mdi:water-percent",
         ),
         ("radio", "date"): FieldMetadata(
-            "Data radio",
+            "Data rilevazione radiometro",
             icon="mdi:clock-outline",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         ("radio", "value"): FieldMetadata(
-            "Valore radio SIR",
-            icon="mdi:radio-tower",
-            entity_category=EntityCategory.DIAGNOSTIC,
+            "Radiazione diretta",
+            icon="mdi:white-balance-sunny",
         ),
         ("pluvio", "date"): FieldMetadata(
-            "Data rilevazione pluviometro",
+            "Data rilevazione precipitazioni",
             icon="mdi:clock-outline",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
@@ -104,28 +155,50 @@ def _metadata(section: str, key: str) -> FieldMetadata:
     if (section, key) in known:
         return known[(section, key)]
 
-    if section == "pluvio" and key.startswith("CUM"):
-        return FieldMetadata(
-            key,
-            UnitOfPrecipitationDepth.MILLIMETERS,
-            SensorDeviceClass.PRECIPITATION,
-            SensorStateClass.MEASUREMENT,
-            "mdi:weather-rainy",
-        )
+    if section == "pluvio":
+        if key in _CUMULATED_PRECIPITATION_LABELS:
+            return FieldMetadata(
+                _CUMULATED_PRECIPITATION_LABELS[key],
+                UnitOfPrecipitationDepth.MILLIMETERS,
+                SensorDeviceClass.PRECIPITATION,
+                SensorStateClass.MEASUREMENT,
+                "mdi:weather-rainy",
+            )
 
-    if section == "pluvio" and key.startswith("TR"):
-        return FieldMetadata(key, icon="mdi:timer-outline")
+        if key in _RETURN_PERIOD_LABELS:
+            return FieldMetadata(
+                _RETURN_PERIOD_LABELS[key],
+                "anni",
+                icon="mdi:calendar-clock",
+            )
+
+        step_match = _PLUVIO_STEP_RE.match(key)
+        if step_match:
+            start = step_match.group("start")
+            end = step_match.group("end")
+            period = step_match.group("period")
+
+            return FieldMetadata(
+                f"Precipitazioni step {start}–{end} ({period} h)",
+                UnitOfPrecipitationDepth.MILLIMETERS,
+                SensorDeviceClass.PRECIPITATION,
+                SensorStateClass.MEASUREMENT,
+                "mdi:weather-rainy",
+            )
 
     if key == "date":
+        section_name = _SECTION_LABELS.get(section, section.title())
         return FieldMetadata(
-            f"Data {section}",
+            f"Data rilevazione {section_name.lower()}",
             icon="mdi:clock-outline",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
 
+    section_name = _SECTION_LABELS.get(section, section.title())
     label = key.replace("_", " ").strip().title()
+
     return FieldMetadata(
-        f"{section.title()} {label}",
+        f"{section_name} {label}",
         icon="mdi:chart-line",
     )
 
@@ -142,6 +215,7 @@ def _native_value(value: Any) -> Any:
 
     if isinstance(value, str):
         value = value.strip()
+
         if value in ("", "-"):
             return None
 
@@ -173,6 +247,7 @@ async def async_setup_entry(
 
             for key, value in section_data.items():
                 field = (section, key)
+
                 if (
                     key in SKIPPED_FIELDS
                     or field in known_fields
@@ -181,6 +256,7 @@ async def async_setup_entry(
                     continue
 
                 known_fields.add(field)
+
                 entities.append(
                     SirToscanaSensor(
                         coordinator=coordinator,
@@ -235,6 +311,7 @@ class SirToscanaSensor(CoordinatorEntity[SirToscanaCoordinator], SensorEntity):
     def native_value(self) -> Any:
         """Return the latest native value."""
         section_data = self.coordinator.data.get(self._section)
+
         if not isinstance(section_data, dict):
             return None
 
