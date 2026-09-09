@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1
+
+- Aggiunto il secondo step del Config Flow per selezionare le tipologie di dati.
+- Tutte le tipologie SIR supportate sono selezionabili: `anemo`, `radio`, `pluvio`, `termo`, `igro`, `idro`, `nivo`.
+- Le opzioni mostrate dipendono dai blocchi realmente restituiti dalla stazione.
+- Tutte le tipologie disponibili sono preselezionate per impostazione predefinita.
+- Aggiunta `radio` alla discovery delle stazioni.
+- Corretto il parsing della tabella idrometrica, dove il nome della stazione è preceduto dal nome del fiume.
+- `radio.value` è esposto come Radianza in `W/m²` con device class `irradiance`.
+- Mantenuta la compatibilità con le configurazioni precedenti prive di `data_types`.
+
+
 ## 0.1.1
 
 - Allineato il polling a 15 minuti.

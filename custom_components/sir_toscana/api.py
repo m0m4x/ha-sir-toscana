@@ -14,7 +14,8 @@ from aiohttp import ClientError, ClientSession
 from .const import REQUEST_TIMEOUT, STATIONS_URL, STATION_TYPES, STATION_URL
 
 _ARRAY_RE = re.compile(
-    r'new\s+Array\(\s*"(?P<id>TOS\d+)"\s*,\s*"(?P<name>(?:\\.|[^"])*)"',
+    r'new\s+Array\(\s*"(?P<id>TOS\d+)"\s*,\s*"(?P<field1>(?:\\.|[^"])*)"'
+    r'(?:\s*,\s*"(?P<field2>(?:\\.|[^"])*)")?',
     re.IGNORECASE,
 )
 _TRANSPORT_SUFFIX_RE = re.compile(r"\s+\((?:RADIO|GPRS)\)\s*$", re.IGNORECASE)
@@ -48,13 +49,25 @@ class SirStation:
     name: str
 
 
-def parse_station_list(text: str) -> list[SirStation]:
+def parse_station_list(
+    text: str,
+    station_type: str | None = None,
+) -> list[SirStation]:
     """Extract station identifiers and names from a SIR monitoring page."""
     stations: list[SirStation] = []
 
     for match in _ARRAY_RE.finditer(text):
-        name = match.group("name")
-        name = name.replace(r'\"', '"').replace(r"\\", "\\")
+        # Hydrometric rows are structured as:
+        # ID, river, station, province, ...
+        # The other supported monitoring tables put the station name
+        # immediately after the ID.
+        raw_name = (
+            match.group("field2")
+            if station_type == "idro" and match.group("field2")
+            else match.group("field1")
+        )
+
+        name = raw_name.replace(r'\"', '"').replace(r"\\", "\\")
         stations.append(
             SirStation(
                 station_id=match.group("id"),
@@ -172,4 +185,4 @@ class SirToscanaApi:
         except (TimeoutError, ClientError) as err:
             raise SirToscanaConnectionError from err
 
-        return parse_station_list(text)
+        return parse_station_list(text, station_type)

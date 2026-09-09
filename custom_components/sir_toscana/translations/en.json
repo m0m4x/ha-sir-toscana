@@ -11,14 +11,36 @@
         "data_description": {
           "station_id": "The list is retrieved automatically from the SIR Toscana website."
         }
+      },
+      "data_types": {
+        "title": "Select data to acquire",
+        "description": "Select the data types available for {station_name}. All data types detected from SIR are selected by default.",
+        "data": {
+          "data_types": "Data types"
+        }
       }
     },
     "error": {
       "cannot_connect": "Unable to communicate with the SIR Toscana website. Try again.",
-      "station_not_found": "The selected station is no longer available in the SIR list."
+      "station_not_found": "The selected station is no longer available in the SIR list.",
+      "no_supported_data": "The station does not return any supported SIR data type.",
+      "no_data_types_selected": "Select at least one data type."
     },
     "abort": {
       "already_configured": "This SIR station is already configured."
+    }
+  },
+  "selector": {
+    "data_types": {
+      "options": {
+        "anemo": "Anemometry — wind",
+        "radio": "Radiometry — irradiance",
+        "pluvio": "Pluviometry — precipitation",
+        "termo": "Thermometry — temperature",
+        "igro": "Hygrometry — relative humidity",
+        "idro": "Hydrometry — levels and flow",
+        "nivo": "Snow measurement — snow depth"
+      }
     }
   }
 }

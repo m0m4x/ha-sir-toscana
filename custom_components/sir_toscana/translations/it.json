@@ -11,14 +11,36 @@
         "data_description": {
           "station_id": "L'elenco viene acquisito automaticamente dal portale SIR Toscana."
         }
+      },
+      "data_types": {
+        "title": "Seleziona i dati da acquisire",
+        "description": "Seleziona le tipologie di dati disponibili per {station_name}. Sono preselezionate tutte le tipologie rilevate dal SIR.",
+        "data": {
+          "data_types": "Tipologie di dati"
+        }
       }
     },
     "error": {
       "cannot_connect": "Impossibile comunicare con il portale SIR Toscana. Riprova.",
-      "station_not_found": "La stazione selezionata non è più disponibile nell'elenco SIR."
+      "station_not_found": "La stazione selezionata non è più disponibile nell'elenco SIR.",
+      "no_supported_data": "La stazione non restituisce nessuna delle tipologie di dati SIR supportate.",
+      "no_data_types_selected": "Seleziona almeno una tipologia di dati."
     },
     "abort": {
       "already_configured": "Questa stazione SIR è già configurata."
+    }
+  },
+  "selector": {
+    "data_types": {
+      "options": {
+        "anemo": "Anemometria — vento",
+        "radio": "Radiometria — radianza",
+        "pluvio": "Pluviometria — precipitazioni",
+        "termo": "Termometria — temperatura",
+        "igro": "Igrometria — umidità relativa",
+        "idro": "Idrometria — livelli e portate",
+        "nivo": "Nivometria — neve"
+      }
     }
   }
 }

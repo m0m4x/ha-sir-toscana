@@ -16,6 +16,7 @@ from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
     EntityCategory,
+    UnitOfIrradiance,
     UnitOfPrecipitationDepth,
     UnitOfPressure,
     UnitOfSpeed,
@@ -26,7 +27,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import CONF_DATA_TYPES, DOMAIN
 from .coordinator import SirToscanaCoordinator
 
 SKIPPED_FIELDS = {"id", "speed_label"}
@@ -137,13 +138,16 @@ def _metadata(section: str, key: str) -> FieldMetadata:
             "mdi:water-percent",
         ),
         ("radio", "date"): FieldMetadata(
-            "Data rilevazione radiometro",
+            "Data rilevazione radianza",
             icon="mdi:clock-outline",
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         ("radio", "value"): FieldMetadata(
-            "Radiazione diretta",
-            icon="mdi:white-balance-sunny",
+            "Radianza",
+            UnitOfIrradiance.WATTS_PER_SQUARE_METER,
+            SensorDeviceClass.IRRADIANCE,
+            SensorStateClass.MEASUREMENT,
+            "mdi:white-balance-sunny",
         ),
         ("pluvio", "date"): FieldMetadata(
             "Data rilevazione precipitazioni",
@@ -236,13 +240,29 @@ async def async_setup_entry(
     coordinator: SirToscanaCoordinator = entry.runtime_data
     known_fields: set[tuple[str, str]] = set()
 
+    # Entries created before 0.2.1 do not contain CONF_DATA_TYPES.
+    # In that case preserve the previous behaviour and expose every
+    # section returned by the SIR endpoint.
+    configured_data_types = entry.data.get(CONF_DATA_TYPES)
+    selected_data_types = (
+        set(configured_data_types)
+        if configured_data_types is not None
+        else None
+    )
+
     @callback
     def async_add_new_fields() -> None:
-        """Add sensors for fields that appear in the station payload."""
+        """Add sensors for selected fields that appear in the station payload."""
         entities: list[SirToscanaSensor] = []
 
         for section, section_data in coordinator.data.items():
             if not isinstance(section_data, dict):
+                continue
+
+            if (
+                selected_data_types is not None
+                and section not in selected_data_types
+            ):
                 continue
 
             for key, value in section_data.items():

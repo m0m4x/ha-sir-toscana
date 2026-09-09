@@ -25,6 +25,7 @@ Il primo pulsante aggiunge/apre il repository in HACS. Il secondo avvia il Confi
 ## Funzionalità
 
 - configurazione da interfaccia Home Assistant tramite Config Flow;
+- selezione delle tipologie di dati disponibili per ciascuna stazione;
 - elenco delle stazioni acquisito automaticamente dal portale SIR;
 - selezione della stazione tramite menu Home Assistant;
 - nessuna necessità di conoscere o digitare il codice `TOS...`;
@@ -100,6 +101,26 @@ Prato Università — TOS01001205
 ```
 
 Il codice viene salvato internamente come identificativo stabile della stazione, mentre il nome pubblicato dal SIR viene utilizzato come nome del dispositivo Home Assistant.
+
+## Selezione delle tipologie di dati
+
+Dopo la scelta della stazione, il Config Flow interroga il relativo endpoint SIR e propone **tutte le macro-tipologie supportate effettivamente presenti nel payload**.
+
+Le tipologie gestite sono:
+
+- `anemo` — Anemometria / vento;
+- `radio` — Radiometria / radianza, in `W/m²`;
+- `pluvio` — Pluviometria / precipitazioni;
+- `termo` — Termometria / temperatura;
+- `igro` — Igrometria / umidità relativa;
+- `idro` — Idrometria / livelli e portate;
+- `nivo` — Nivometria / neve.
+
+Tutte le tipologie disponibili sono preselezionate; l'utente può deselezionare quelle che non desidera esporre in Home Assistant.
+
+La richiesta HTTP al SIR continua a restituire l'intero payload della stazione. La selezione determina quali sezioni vengono trasformate in entità Home Assistant.
+
+Le configurazioni create con versioni precedenti, prive del campo `data_types`, mantengono il comportamento precedente ed espongono tutte le sezioni restituite dal SIR.
 
 ## Aggiornamento dei dati
 
