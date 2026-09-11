@@ -1,6 +1,6 @@
 {
   "domain": "sir_toscana",
-  "name": "SIR Toscana",
+  "name": "SIR CFR Toscana",
   "codeowners": [
     "@m0m4x"
   ],
@@ -11,5 +11,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/m0m4x/ha-sir-toscana/issues",
   "requirements": [],
-  "version": "0.2.1"
+  "version": "0.2.2"
 }
