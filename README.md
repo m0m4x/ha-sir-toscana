@@ -1,4 +1,4 @@
-# SIR Toscana per Home Assistant
+# SIR CFR Toscana per Home Assistant
 
 [![GitHub release](https://img.shields.io/github/v/release/m0m4x/ha-sir-toscana?display_name=tag)](https://github.com/m0m4x/ha-sir-toscana/releases)
 [![HACS validation](https://github.com/m0m4x/ha-sir-toscana/actions/workflows/validate.yml/badge.svg)](https://github.com/m0m4x/ha-sir-toscana/actions/workflows/validate.yml)
@@ -14,13 +14,13 @@ L'integrazione acquisisce automaticamente l'elenco delle stazioni disponibili da
 
 Premi il pulsante seguente per aprire direttamente questo repository in HACS:
 
-[![Apri SIR Toscana in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=m0m4x&repository=ha-sir-toscana&category=integration)
+[![Apri SIR CFR Toscana in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=m0m4x&repository=ha-sir-toscana&category=integration)
 
 Dopo aver scaricato l'integrazione da HACS e riavviato Home Assistant, premi:
 
-[![Aggiungi SIR Toscana a Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=sir_toscana)
+[![Aggiungi SIR CFR Toscana a Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=sir_toscana)
 
-Il primo pulsante aggiunge/apre il repository in HACS. Il secondo avvia il Config Flow di **SIR Toscana** dopo che la custom integration è stata installata.
+Il primo pulsante aggiunge/apre il repository in HACS. Il secondo avvia il Config Flow di **SIR CFR Toscana** dopo che la custom integration è stata installata.
 
 ## Funzionalità
 
@@ -91,7 +91,7 @@ I campi tecnici `id` e `speed_label` non vengono creati come entità.
 ## Configurazione
 
 1. Aprire **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
-2. Cercare **SIR Toscana**.
+2. Cercare **SIR CFR Toscana**.
 3. Selezionare la stazione desiderata dall'elenco.
 
 Ogni voce mostra il nome pubblicato dal SIR e il relativo codice identificativo:
@@ -100,7 +100,7 @@ Ogni voce mostra il nome pubblicato dal SIR e il relativo codice identificativo:
 Prato Università — TOS01001205
 ```
 
-![Selezione della stazione SIR Toscana](docs/images/config-flow-station.png)
+![Selezione della stazione SIR CFR Toscana](docs/images/config-flow-station.png)
 
 Il codice viene salvato internamente come identificativo stabile della stazione, mentre il nome pubblicato dal SIR viene utilizzato come nome del dispositivo Home Assistant.
 
@@ -130,7 +130,7 @@ Le configurazioni create con versioni precedenti, prive del campo `data_types`, 
 
 Al termine della configurazione Home Assistant crea un dispositivo distinto per la stazione, con i sensori relativi alle tipologie selezionate e le entità diagnostiche disponibili.
 
-![Esempio del dispositivo SIR Toscana in Home Assistant](docs/images/device-overview.png)
+![Esempio del dispositivo SIR CFR Toscana in Home Assistant](docs/images/device-overview.png)
 
 ## Aggiornamento dei dati
 
@@ -195,7 +195,7 @@ I campi noti ricevono nomi leggibili, unità, device class e icone Home Assistan
 
 3. Riavviare Home Assistant.
 4. Aprire **Impostazioni → Dispositivi e servizi → Aggiungi integrazione**.
-5. Cercare **SIR Toscana**.
+5. Cercare **SIR CFR Toscana**.
 6. Selezionare la stazione desiderata.
 
 ## Limitazioni
