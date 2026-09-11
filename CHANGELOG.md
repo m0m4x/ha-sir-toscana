@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2
+
+- Rinominata l'integrazione da **SIR Toscana** a **SIR CFR Toscana** per identificare più chiaramente il servizio regionale.
+- Aggiornati i metadati HACS e Home Assistant mantenendo invariati il domain `sir_toscana` e il repository.
+
 ## 0.2.1
 
 - Aggiunto il secondo step del Config Flow per selezionare le tipologie di dati.
