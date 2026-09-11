@@ -100,7 +100,7 @@ Ogni voce mostra il nome pubblicato dal SIR e il relativo codice identificativo:
 Prato Università — TOS01001205
 ```
 
-![Selezione della stazione SIR Toscana](docs/images/config-flow-station.jpg)
+![Selezione della stazione SIR Toscana](docs/images/config-flow-station.png)
 
 Il codice viene salvato internamente come identificativo stabile della stazione, mentre il nome pubblicato dal SIR viene utilizzato come nome del dispositivo Home Assistant.
 
@@ -108,7 +108,7 @@ Il codice viene salvato internamente come identificativo stabile della stazione,
 
 Dopo la scelta della stazione, il Config Flow interroga il relativo endpoint SIR e propone **tutte le macro-tipologie supportate effettivamente presenti nel payload**.
 
-![Selezione delle tipologie di dati SIR](docs/images/config-flow-data-types.jpg)
+![Selezione delle tipologie di dati SIR](docs/images/config-flow-data-types.png)
 
 Le tipologie gestite sono:
 
@@ -130,7 +130,7 @@ Le configurazioni create con versioni precedenti, prive del campo `data_types`, 
 
 Al termine della configurazione Home Assistant crea un dispositivo distinto per la stazione, con i sensori relativi alle tipologie selezionate e le entità diagnostiche disponibili.
 
-![Esempio del dispositivo SIR Toscana in Home Assistant](docs/images/device-overview.jpg)
+![Esempio del dispositivo SIR Toscana in Home Assistant](docs/images/device-overview.png)
 
 ## Aggiornamento dei dati
 
